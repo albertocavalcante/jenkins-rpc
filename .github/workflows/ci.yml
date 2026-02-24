@@ -135,7 +135,28 @@ jobs:
           path: tests/e2e/docker
 
       - name: Start Jenkins
-        run: cd tests/e2e/docker && docker compose up --build --wait
+        run: cd tests/e2e/docker && docker compose up --build -d
+
+      - name: Wait for Jenkins
+        run: |
+          echo "Waiting for Jenkins to become ready..."
+          for i in $(seq 1 60); do
+            status=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/step-rpc/v1/ 2>/dev/null) || true
+            if [ "$status" = "200" ]; then
+              echo "Jenkins is ready (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $status, retrying in 5s..."
+            sleep 5
+          done
+          echo "=== Jenkins never became ready ==="
+          echo "--- curl verbose output ---"
+          curl -v http://localhost:8080/step-rpc/v1/ 2>&1 || true
+          echo "--- docker health state ---"
+          docker inspect --format='{{json .State.Health}}' docker-jenkins-1 2>&1 || true
+          echo "--- Jenkins logs (last 100 lines) ---"
+          cd tests/e2e/docker && docker compose logs --tail=100
+          exit 1
 
       - name: Run e2e tests
         run: cd tests/e2e && go test -tags e2e -v -count=1 -timeout 300s ./...
