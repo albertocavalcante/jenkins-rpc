@@ -1,6 +1,6 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.2.21"
-    id("org.jenkins-ci.jpi") version "0.55.1"
+    id("org.jetbrains.kotlin.jvm") version "2.3.10"
+    id("org.jenkins-ci.jpi") version "0.56.3"
 }
 
 repositories {
@@ -17,9 +17,9 @@ jenkinsPlugin {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
-    implementation("com.google.protobuf:protobuf-java-util:4.32.1")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.2.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.10")
+    implementation("com.google.protobuf:protobuf-java-util:4.33.5")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.3.10")
     testImplementation("org.junit.vintage:junit-vintage-engine:5.11.4")
 }
 
