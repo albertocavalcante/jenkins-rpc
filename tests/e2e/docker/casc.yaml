@@ -3,11 +3,9 @@ jenkins:
     local:
       allowsSignup: false
       users: []
-  authorizationStrategy: unsecured
+  authorizationStrategy: "unsecured"
   quietPeriod: 0
   numExecutors: 2
-
-  crumbIssuer: null
 
 unclassified:
   location:
