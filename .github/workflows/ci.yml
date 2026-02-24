@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1.50.0
+        with:
+          github_token: ${{ github.token }}
+
+      - name: Lint
+        run: cd contracts && buf lint
+
+      - name: Generate Go
+        run: cd contracts && buf generate --template buf.gen.go.yaml
+
+      - name: Generate Java
+        run: cd contracts && buf generate --template buf.gen.java.yaml
+
+      - name: Verify clean tree
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Generated code is out of date. Run buf generate and commit."
+            git status --porcelain
+            git diff --stat
+            exit 1
+          fi
+
+  plugin:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+
+      - run: cd plugin && ./gradlew build
+
+  go-client:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        go-version: ["stable"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Format check
+        run: cd go-client && test -z "$(gofmt -l .)" || (echo "gofmt needed on:"; gofmt -l .; exit 1)
+
+      - name: Vet
+        run: cd go-client && go vet ./...
+
+      - name: Lint
+        run: cd go-client && GOWORK=off go tool -modfile=tools/lint/go.mod golangci-lint run
+
+      - name: Run tests
+        run: cd go-client && GOWORK=off go tool -modfile=tools.go.mod gotestsum --format pkgname-and-test-fails --jsonfile test-output.json -- -race -coverprofile=coverage.out ./...
+
+      - name: SonarCloud Analysis
+        if: matrix.go-version == 'stable'
+        uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8 # v5.0.0
+        with:
+          projectBaseDir: go-client
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

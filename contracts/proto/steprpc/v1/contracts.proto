@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package steprpc.v1;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/albertocavalcante/jenkins-rpc/contracts/gen/go/proto/steprpc/v1;steprpcv1";
+option java_package = "io.albertocavalcante.jenkins.steprpc.v1";
+option java_multiple_files = true;
+
+message Error {
+  string code = 1;
+  string message = 2;
+  map<string, string> details = 3;
+}
+
+message ErrorResponse {
+  Error error = 1;
+}
+
+message HealthResponse {
+  string api_version = 1;
+  string service = 2;
+  string status = 3;
+}
+
+enum OperationExecutionMode {
+  OPERATION_EXECUTION_MODE_UNSPECIFIED = 0;
+  OPERATION_EXECUTION_MODE_DIRECT = 1;
+  OPERATION_EXECUTION_MODE_CPS_BRIDGE_REQUIRED = 2;
+}
+
+message CatalogOperation {
+  string name = 1;
+  string description = 2;
+  OperationExecutionMode execution_mode = 3;
+}
+
+message CatalogResponse {
+  repeated CatalogOperation operations = 1;
+}
+
+message InvokeRequest {
+  string request_id = 1;
+  string operation = 2;
+  google.protobuf.Struct args = 3;
+  string idempotency_key = 4;
+}
+
+message InvokeResponse {
+  string request_id = 1;
+  string run_id = 2;
+  string state = 3;
+  Error error = 4;
+}
+
+message BridgePendingResponse {
+  string request_id = 1;
+  string run_id = 2;
+  string operation = 3;
+  google.protobuf.Struct args = 4;
+  string target_run_externalizable_id = 5;
+}
+
+message BridgeCompleteRequest {
+  string run_id = 1;
+  string state = 2;
+  Error error = 3;
+}
+
+message BridgeCompleteResponse {
+  string request_id = 1;
+  string run_id = 2;
+  string state = 3;
+}
+
+message RunStatusResponse {
+  string request_id = 1;
+  string run_id = 2;
+  string operation = 3;
+  string state = 4;
+  google.protobuf.Timestamp created_at = 5;
+  Error error = 6;
+}
