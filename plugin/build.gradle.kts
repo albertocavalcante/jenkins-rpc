@@ -20,7 +20,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
     implementation("com.google.protobuf:protobuf-java-util:4.32.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:2.2.21")
-    testImplementation("org.junit.vintage:junit-vintage-engine:5.11.4")
+    testImplementation("org.junit.vintage:junit-vintage-engine:6.0.3")
 }
 
 sourceSets {
