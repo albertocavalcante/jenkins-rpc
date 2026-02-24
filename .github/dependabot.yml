@@ -1,0 +1,76 @@
+version: 2
+updates:
+  # ─── GitHub Actions ────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "16:00"
+      timezone: America/Los_Angeles
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+
+  # ─── Go: contracts module ──────────────────────────────
+  - package-ecosystem: gomod
+    directory: /contracts
+    schedule:
+      interval: weekly
+      day: monday
+      time: "16:00"
+      timezone: America/Los_Angeles
+    commit-message:
+      prefix: "deps(contracts)"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+
+  # ─── Go: go-client module ──────────────────────────────
+  - package-ecosystem: gomod
+    directory: /go-client
+    schedule:
+      interval: weekly
+      day: monday
+      time: "16:00"
+      timezone: America/Los_Angeles
+    commit-message:
+      prefix: "deps(go-client)"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+
+  # ─── Go: go-client lint tools ──────────────────────────
+  - package-ecosystem: gomod
+    directory: /go-client/tools/lint
+    schedule:
+      interval: weekly
+      day: monday
+      time: "16:00"
+      timezone: America/Los_Angeles
+    commit-message:
+      prefix: "deps(lint)"
+    groups:
+      lint-tools:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+
+  # ─── Gradle: plugin ────────────────────────────────────
+  - package-ecosystem: gradle
+    directory: /plugin
+    schedule:
+      interval: weekly
+      day: monday
+      time: "16:00"
+      timezone: America/Los_Angeles
+    commit-message:
+      prefix: "deps(plugin)"
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5

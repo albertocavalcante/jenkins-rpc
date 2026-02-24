@@ -1,0 +1,1 @@
+{"operations":[{"name":"archiveArtifacts","description":"Archive artifacts","executionMode":"OPERATION_EXECUTION_MODE_DIRECT"},{"name":"junit","description":"Publish test results","executionMode":"OPERATION_EXECUTION_MODE_CPS_BRIDGE_REQUIRED"}]}

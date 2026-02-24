@@ -1,0 +1,28 @@
+# jenkins-rpc/contracts
+# Run `just` to see all commands
+
+set shell := ["bash", "-cu"]
+
+default:
+    @just --list --unsorted
+
+# Lint proto files
+lint:
+    buf lint
+
+# Generate Go protobuf code
+gen-go:
+    buf generate --template buf.gen.go.yaml
+
+# Generate Java protobuf code
+gen-java:
+    buf generate --template buf.gen.java.yaml
+
+# Generate all protobuf code
+gen: gen-go gen-java
+
+# Verify generated code is up to date
+verify:
+    buf generate --template buf.gen.go.yaml
+    buf generate --template buf.gen.java.yaml
+    @test -z "$(git status --porcelain gen/)" || (echo "Generated code is out of date"; git status --porcelain gen/; exit 1)

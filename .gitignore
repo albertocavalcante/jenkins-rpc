@@ -1,0 +1,45 @@
+# ─── Go ──────────────────────────────────────────────────
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.o
+*.a
+coverage.out
+coverage.html
+*.coverprofile
+test-output.json
+test-results.xml
+go.work.sum
+
+# ─── Java / Gradle ──────────────────────────────────────
+plugin/build/
+plugin/.gradle/
+plugin/.kotlin/
+plugin/out/
+
+# ─── IDE ─────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*~
+*.iml
+*.ipr
+*.iws
+
+# ─── OS ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Build ───────────────────────────────────────────────
+dist/
+bin/
+
+# ─── Secrets ─────────────────────────────────────────────
+.env
+*.pem
+*.key
+
+# ─── Lefthook ────────────────────────────────────────────
+lefthook-local.yml

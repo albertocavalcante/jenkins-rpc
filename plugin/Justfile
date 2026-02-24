@@ -1,0 +1,22 @@
+# jenkins-rpc/plugin
+# Run `just` to see all commands
+
+set shell := ["bash", "-cu"]
+
+default:
+    just --list
+
+setup:
+    ./gradlew --version
+
+build:
+    ./gradlew clean build
+
+test:
+    ./gradlew test
+
+run:
+    ./gradlew server
+
+check:
+    ./gradlew check
