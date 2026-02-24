@@ -1,0 +1,14 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users: []
+  authorizationStrategy: unsecured
+  quietPeriod: 0
+  numExecutors: 2
+
+  crumbIssuer: null
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"

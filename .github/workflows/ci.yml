@@ -66,6 +66,14 @@ jobs:
 
       - run: cd plugin && ./gradlew build
 
+      - name: Upload HPI
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: plugin-hpi
+          path: plugin/build/libs/jenkins-step-rpc-plugin.hpi
+          if-no-files-found: error
+          retention-days: 1
+
   go-client:
     runs-on: ubuntu-24.04
     permissions:
@@ -104,3 +112,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  e2e:
+    needs: [plugin]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        with:
+          go-version: stable
+
+      - name: Download HPI
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: plugin-hpi
+          path: tests/e2e/docker
+
+      - name: Start Jenkins
+        run: cd tests/e2e/docker && docker compose up --build --wait
+
+      - name: Run e2e tests
+        run: cd tests/e2e && go test -tags e2e -v -count=1 -timeout 300s ./...
+        env:
+          E2E_SKIP_DOCKER: "true"
+
+      - name: Teardown Jenkins
+        if: always()
+        run: cd tests/e2e/docker && docker compose down -v

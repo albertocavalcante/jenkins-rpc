@@ -78,6 +78,28 @@ go-client-tidy:
     cd go-client && go mod tidy -modfile=tools.go.mod
     cd go-client/tools/lint && go mod tidy
 
+# ─── E2E ─────────────────────────────────────────────────
+
+# Copy plugin HPI to e2e docker context
+e2e-prepare: plugin-build
+    cp plugin/build/libs/jenkins-step-rpc-plugin.hpi tests/e2e/docker/
+
+# Start Jenkins container for e2e tests
+e2e-up: e2e-prepare
+    cd tests/e2e/docker && docker compose up --build --wait
+
+# Stop Jenkins container and remove volumes
+e2e-down:
+    cd tests/e2e/docker && docker compose down -v
+
+# Run e2e integration tests (starts Jenkins, runs tests, tears down)
+e2e-test: e2e-prepare
+    cd tests/e2e && go test -tags e2e -v -count=1 -timeout 300s ./...
+
+# Clean up e2e artifacts
+e2e-clean: e2e-down
+    rm -f tests/e2e/docker/jenkins-step-rpc-plugin.hpi
+
 # ─── All ─────────────────────────────────────────────────
 
 # Run all checks across the monorepo
